@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒店管理系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>酒店预订管理</h1>
+
+    <!-- 预订表单 -->
+    <form id="bookingForm">
+        <label for="guestName">客人姓名:</label>
+        <input type="text" id="guestName" name="guestName" required>
+
+        <label for="introducer">介绍人:</label>
+        <input type="text" id="introducer" name="introducer">
+
+        <label for="checkInDate">入住日期:</label>
+        <input type="date" id="checkInDate" name="checkInDate" required>
+
+        <label for="checkOutDate">离店日期:</label>
+        <input type="date" id="checkOutDate" name="checkOutDate" required>
+
+        <label>房型选择:</label>
+        <div id="roomSelection">
+            <label>标间: <input type="number" id="room-standard" min="0" value="0"></label>
+            <label>三人间: <input type="number" id="room-triple" min="0" value="0"></label>
+            <label>大床房: <input type="number" id="room-king" min="0" value="0"></label>
+            <label>亲子间: <input type="number" id="room-family" min="0" value="0"></label>
+        </div>
+
+        <label for="pickupTime">接船时间:</label>
+        <input type="time" id="pickupTime" name="pickupTime">
+
+        <label for="dropoffTime">送船时间:</label>
+        <input type="time" id="dropoffTime" name="dropoffTime">
+
+        <label for="remarks">备注:</label>
+        <textarea id="remarks" name="remarks"></textarea>
+
+        <button type="submit">提交预订</button>
+    </form>
+
+    <!-- ✅ 这里是 `booking-list`，防止 `script.js` 里找不到这个 ID -->
+    <div id="booking-list"></div>
+
+    <!-- 预订记录表 -->
+    <table id="bookingsTable">
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>房型详情</th>
+                <th>入住日期</th>
+                <th>离店日期</th>
+                <th>介绍人</th>
+                <th>接船时间</th>
+                <th>送船时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="bookingsTableBody">
+            <!-- 这里将动态填充预订记录 -->
+        </tbody>
+    </table>
+
+    <script src="script.js"></script>
+</body>
+</html>
