@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒店管理系统 - 多房型专业版</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>酒店客人入住登记表</h1>
+        
+        <!-- 预订表单 -->
+        <form id="checkInForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="guestName">客人姓名：*</label>
+                    <input type="text" id="guestName" name="guestName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="introducer">介绍人：*</label>
+                    <input type="text" id="introducer" name="introducer" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="checkInDate">入住日期：*</label>
+                    <input type="date" id="checkInDate" name="checkInDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="checkOutDate">离店日期：*</label>
+                    <input type="date" id="checkOutDate" name="checkOutDate" required>
+                </div>
+            </div>
+
+            <!-- 在房型选择区域上方添加房态显示 -->
+            <div class="form-group">
+                <div class="room-status">
+                    <h3>房间状态</h3>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <span class="room-label">标间</span>
+                            <span class="room-total">总数：21间</span>
+                            <span class="room-available" id="standard-available">可订：21间</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="room-label">三人间</span>
+                            <span class="room-total">总数：2间</span>
+                            <span class="room-available" id="triple-available">可订：2间</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="room-label">大床房</span>
+                            <span class="room-total">总数：4间</span>
+                            <span class="room-available" id="double-available">可订：4间</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="room-label">亲子间</span>
+                            <span class="room-total">总数：1间</span>
+                            <span class="room-available" id="family-available">可订：1间</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 在房型选择区域添加日期提示 -->
+            <div class="form-group">
+                <label>房型选择：* <span class="date-hint" id="selected-date-hint"></span></label>
+                <div class="room-types">
+                    <div class="room-type">
+                        <label>标间</label>
+                        <input type="number" name="standard" min="0" value="0">
+                    </div>
+                    <div class="room-type">
+                        <label>三人间</label>
+                        <input type="number" name="triple" min="0" value="0">
+                    </div>
+                    <div class="room-type">
+                        <label>大床房</label>
+                        <input type="number" name="double" min="0" value="0">
+                    </div>
+                    <div class="room-type">
+                        <label>亲子间</label>
+                        <input type="number" name="family" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="pickupTime">接船时间：</label>
+                    <select id="pickupTime" name="pickupTime">
+                        <option value="">无需接船</option>
+                        <option value="11:00">11:00</option>
+                        <option value="12:00">12:00</option>
+                        <option value="13:00">13:00</option>
+                        <option value="14:00">14:00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dropoffTime">送船时间：</label>
+                    <select id="dropoffTime" name="dropoffTime">
+                        <option value="">无需送船</option>
+                        <option value="11:35">11:35</option>
+                        <option value="13:20">13:20</option>
+                        <option value="14:30">14:30</option>
+                        <option value="16:30">16:30</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">备注：</label>
+                <textarea id="remarks" name="remarks" rows="3" placeholder="输入备注..."></textarea>
+            </div>
+
+            <button type="submit">提交预订</button>
+        </form>
+
+        <!-- 预订记录表格 -->
+        <div class="bookings-table">
+            <div class="table-header">
+                <h2>预订记录</h2>
+                <div class="table-controls">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="搜索姓名/介绍人...">
+                        <select id="searchType">
+                            <option value="name">按姓名</option>
+                            <option value="introducer">按介绍人</option>
+                            <option value="date">按日期</option>
+                        </select>
+                        <button id="searchBtn">搜索</button>
+                    </div>
+                    <div class="sort-box">
+                        <select id="sortType">
+                            <option value="dateAsc">日期升序</option>
+                            <option value="dateDesc">日期降序</option>
+                            <option value="nameAsc">姓名升序</option>
+                            <option value="nameDesc">姓名降序</option>
+                        </select>
+                    </div>
+                    <button id="exportBtn" class="export-btn">导出数据</button>
+                </div>
+            </div>
+            <!-- 分页控制 -->
+            <div class="pagination">
+                <span class="page-info">每页显示：</span>
+                <select id="pageSize">
+                    <option value="10">10条</option>
+                    <option value="20">20条</option>
+                    <option value="50">50条</option>
+                </select>
+                <div class="page-controls">
+                    <button id="prevPage" class="page-btn">上一页</button>
+                    <span id="pageInfo">第 1 页 / 共 1 页</span>
+                    <button id="nextPage" class="page-btn">下一页</button>
+                </div>
+            </div>
+            <table id="bookingsTable">
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>房型详情</th>
+                        <th>入住日期</th>
+                        <th>离店日期</th>
+                        <th>介绍人</th>
+                        <th>接船时间</th>
+                        <th>送船时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <!-- 预订记录将通过JavaScript动态添加 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
