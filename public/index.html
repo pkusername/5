@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒店管理系统 - 多房型专业版</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- 添加 SheetJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>酒店管理系统 - 多房型专业版</h1>
+    </header>
+
+    <main>
+        <!-- 预订表单 -->
+        <section class="booking-form">
+            <h2>预订信息</h2>
+            <form id="bookingForm" class="booking-form">
+                <!-- 基本信息部分 -->
+                <div class="basic-info">
+                    <div class="form-group">
+                        <label for="guestName">客人信息：</label>
+                        <input type="text" id="guestName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="introducer">客源：</label>
+                        <input type="text" id="introducer">
+                    </div>
+                    <div class="form-dates">
+                        <div class="form-group">
+                            <label for="checkInDate">入住日期：</label>
+                            <input type="date" id="checkInDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkOutDate">退房日期：</label>
+                            <input type="date" id="checkOutDate" required>
+                        </div>
+                    </div>
+
+                    <!-- 移动房间状态到这里 -->
+                    <section class="room-status">
+                        <h3>房间状态</h3>
+                        <div class="room-grid">
+                            <div class="room-card">
+                                <h4>标间</h4>
+                                <div class="room-info">
+                                    <p>总数：<span id="standard-total">21间</span></p>
+                                    <p>可订：<span id="standard-available">21间</span></p>
+                                </div>
+                            </div>
+
+                            <div class="room-card">
+                                <h4>三人间</h4>
+                                <div class="room-info">
+                                    <p>总数：<span id="triple-total">2间</span></p>
+                                    <p>可订：<span id="triple-available">2间</span></p>
+                                </div>
+                            </div>
+
+                            <div class="room-card">
+                                <h4>大床房</h4>
+                                <div class="room-info">
+                                    <p>总数：<span id="king-total">4间</span></p>
+                                    <p>可订：<span id="king-available">4间</span></p>
+                                </div>
+                            </div>
+
+                            <div class="room-card">
+                                <h4>亲子间</h4>
+                                <div class="room-info">
+                                    <p>总数：<span id="family-total">1间</span></p>
+                                    <p>可订：<span id="family-available">1间</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 房型选择表单 -->
+                    <div class="form-group">
+                        <label>房型选择：</label>
+                        <div class="room-selection">
+                            <div class="selection-item">
+                                <label for="standard">标间</label>
+                                <input type="number" id="standard" min="0" value="0">
+                            </div>
+                            <div class="selection-item">
+                                <label for="triple">三人间</label>
+                                <input type="number" id="triple" min="0" value="0">
+                            </div>
+                            <div class="selection-item">
+                                <label for="king">大床房</label>
+                                <input type="number" id="king" min="0" value="0">
+                            </div>
+                            <div class="selection-item">
+                                <label for="family">亲子间</label>
+                                <input type="number" id="family" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-times">
+                        <div class="form-group">
+                            <label for="pickupTime">接船：</label>
+                            <input type="time" id="pickupTime">
+                        </div>
+                        <div class="form-group">
+                            <label for="dropoffTime">送船：</label>
+                            <input type="time" id="dropoffTime">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="remarks">备注：</label>
+                        <textarea id="remarks" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- 更多信息的折叠面板 -->
+                <div class="more-info-toggle">
+                    <button type="button" onclick="toggleMoreInfo()">更多信息 ▼</button>
+                </div>
+
+                <!-- 更多信息部分（默认隐藏） -->
+                <div class="more-info" style="display: none;">
+                    <div class="form-group">
+                        <label for="price">单价：</label>
+                        <input type="number" id="price">
+                    </div>
+                    <div class="form-group">
+                        <label for="totalPrice">房费合计：</label>
+                        <input type="number" id="totalPrice">
+                    </div>
+                    <div class="form-group">
+                        <label for="otherFees">其他：</label>
+                        <input type="text" id="otherFees">
+                    </div>
+                    <div class="form-group">
+                        <label for="deposit">前台现收款：</label>
+                        <input type="number" id="deposit">
+                    </div>
+                    <div class="form-group">
+                        <label for="receivable">应收：</label>
+                        <input type="number" id="receivable">
+                    </div>
+                    <div class="form-group">
+                        <label for="guestCount">人数：</label>
+                        <input type="number" id="guestCount" min="1">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">提交预订</button>
+            </form>
+        </section>
+
+        <!-- 预订记录表格 -->
+        <section class="bookings-section">
+            <h2>预订记录</h2>
+            <div class="search-bar">
+                <input type="text" id="searchName" placeholder="搜索客人姓名或介绍人">
+                <div class="date-filters">
+                    <input type="date" id="searchStartDate" placeholder="开始日期">
+                    <span>至</span>
+                    <input type="date" id="searchEndDate" placeholder="结束日期">
+                </div>
+                <button class="search-btn" onclick="searchBookings()">搜索</button>
+                <button class="reset-btn" onclick="resetSearch()">重置</button>
+                <button type="button" class="export-btn" onclick="exportToExcel()">导出Excel</button>
+            </div>
+            <table class="hotel-booking-table">
+                <thead>
+                    <tr>
+                        <th>客人信息</th>
+                        <th>客源</th>
+                        <th>入住日期</th>
+                        <th>退房日期</th>
+                        <th>房型</th>
+                        <th>房间数</th>
+                        <th>用房天数</th>
+                        <th>总房数</th>
+                        <th>单价</th>
+                        <th>房费合计</th>
+                        <th>其他</th>
+                        <th>前台现收款</th>
+                        <th>应收</th>
+                        <th>人数</th>
+                        <th>接船</th>
+                        <th>送船</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <!-- 动态数据将通过 JavaScript 插入这里 -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 添加修改预订的模态框 -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>修改预订</h2>
+                <form id="editForm">
+                    <input type="hidden" id="editBookingId">
+                    <div class="form-group">
+                        <label for="editGuestName">客人姓名：</label>
+                        <input type="text" id="editGuestName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editIntroducer">介绍人：</label>
+                        <input type="text" id="editIntroducer">
+                    </div>
+                    <div class="form-dates">
+                        <div class="form-group">
+                            <label for="editCheckInDate">入住日期：</label>
+                            <input type="date" id="editCheckInDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCheckOutDate">离店日期：</label>
+                            <input type="date" id="editCheckOutDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>房型选择：</label>
+                        <div class="room-selection">
+                            <div class="selection-item">
+                                <label for="editStandard">标间</label>
+                                <input type="number" id="editStandard" min="0" value="0">
+                            </div>
+                            <div class="selection-item">
+                                <label for="editTriple">三人间</label>
+                                <input type="number" id="editTriple" min="0" value="0">
+                            </div>
+                            <div class="selection-item">
+                                <label for="editKing">大床房</label>
+                                <input type="number" id="editKing" min="0" value="0">
+                            </div>
+                            <div class="selection-item">
+                                <label for="editFamily">亲子间</label>
+                                <input type="number" id="editFamily" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-times">
+                        <div class="form-group">
+                            <label for="editPickupTime">接船时间：</label>
+                            <input type="time" id="editPickupTime">
+                        </div>
+                        <div class="form-group">
+                            <label for="editDropoffTime">送船时间：</label>
+                            <input type="time" id="editDropoffTime">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editRemarks">备注：</label>
+                        <textarea id="editRemarks" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">保存修改</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+
+    <style>
+    .hotel-booking-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    .hotel-booking-table th,
+    .hotel-booking-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .hotel-booking-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+
+    .hotel-booking-table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+    </style>
+</body>
+</html>
